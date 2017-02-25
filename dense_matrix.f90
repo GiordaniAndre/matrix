@@ -1,4 +1,5 @@
 #include "scalar.fpp"
+
 !=====================================================================!
 ! Module that defines a matrix type that contains dense storage of
 ! entries
@@ -25,14 +26,16 @@ module dense_matrix_interface
 
    contains
 
-     procedure :: add_entry => add_dense_entry
-     procedure :: get_entry => get_dense_entry
-
+     procedure :: add_entry
+     procedure :: get_entry
+     procedure :: destroy
+     
   end type dense_matrix
   
   ! Interfaces
   interface dense_matrix
-     procedure constructor
+     procedure construct_empty_matrix
+     procedure construct_from_matrix
   end interface dense_matrix
 
 contains
@@ -41,7 +44,7 @@ contains
   ! Initializes an instance of dense matrix
   !===================================================================!
   
-  function constructor(row_size, col_size) result(this)
+  function construct_empty_matrix(row_size, col_size) result(this)
 
     integer            :: col_size
     integer            :: row_size
@@ -57,35 +60,74 @@ contains
     ! Zero the entries
     this % vals = 0.0_WP
     
-  end function constructor
+  end function construct_empty_matrix
+    
+  !===================================================================!
+  ! Creates an instance of matrix from supplied matrix entries
+  !===================================================================!
+  
+  pure type(dense_matrix) function construct_from_matrix(mat) result(this)
 
+    type(scalar), intent(in) :: mat(:,:)
+    type(integer) :: mat_shape(2)
+
+    ! Determine the input matrix dimensions [row, col]
+    mat_shape = shape(mat)
+
+    ! Set matrix dimensions
+    call this % set_row_size(mat_shape(1))
+    call this % set_col_size(mat_shape(2)) 
+
+    ! Allocate space
+    allocate(this % vals(this % get_row_size(), this% get_col_size()))
+    
+    ! Zero the entries
+    this % vals = mat
+    
+  end function construct_from_matrix
+
+  !=================================================================!
+  ! Destructor for the matrix
+  !=================================================================!
+
+  pure subroutine destroy(this)
+
+    class(dense_matrix), intent(inout) :: this
+
+    ! Free up allocated memory in heap
+    if (allocated(this % vals)) then
+       deallocate(this % vals)
+    end if
+
+  end subroutine destroy
+  
   !=================================================================!
   ! Adding an entry to a dense matrix
   !=================================================================!
 
-  subroutine add_dense_entry(this, row, col, val)
+  pure subroutine add_entry(this, row, col, val)
 
-    class(dense_matrix) :: this
-    type(integer)       :: col
-    type(integer)       :: row
-    type(scalar)        :: val
-
+    class(dense_matrix), intent(inout) :: this
+    type(integer), intent(in) :: row
+    type(integer), intent(in) :: col
+    type(scalar), intent(in)  :: val
+    
     this % vals(row, col) = val
 
-  end subroutine add_dense_entry
-
+  end subroutine add_entry
+  
   !=================================================================!
   ! Fetch the entry corresponding to the row and column
   !=================================================================!
 
-  type(scalar) function get_dense_entry(this, row, col) result(val)
-
-    class(dense_matrix) :: this
-    type(integer) :: row
-    type(integer) :: col
+  pure type(scalar) function get_entry(this, row, col) result(val)
+    
+    class(dense_matrix), intent(in) :: this
+    type(integer), intent(in) :: row
+    type(integer), intent(in) :: col
 
     val = this % vals(row, col)
     
-  end function get_dense_entry
+  end function get_entry
 
 end module dense_matrix_interface

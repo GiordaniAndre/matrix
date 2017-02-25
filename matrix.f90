@@ -47,14 +47,14 @@ module matrix_interface
      ! Adding entry into a matrix  
      !----------------------------------------------------------------!
 
-     subroutine add_entry_interface(this, row, col, val)
-
+     pure subroutine add_entry_interface(this, row, col, val)
+       
        import :: matrix
 
-       class(matrix) :: this
-       type(integer) :: row
-       type(integer) :: col
-       type(scalar)  :: val
+       class(matrix), intent(inout) :: this
+       type(integer), intent(in) :: row
+       type(integer), intent(in) :: col
+       type(scalar), intent(in)  :: val
 
      end subroutine add_entry_interface
 
@@ -62,13 +62,13 @@ module matrix_interface
      ! Getting a scalar entry from a matrix
      !----------------------------------------------------------------!
      
-     type(scalar) function get_entry_interface(this, row, col)
+     pure type(scalar) function get_entry_interface(this, row, col)
 
        import :: matrix
 
-       class(matrix) :: this
-       type(integer) :: row
-       type(integer) :: col
+       class(matrix), intent(in) :: this
+       type(integer), intent(in) :: row
+       type(integer), intent(in) :: col
 
      end function get_entry_interface
 
@@ -80,10 +80,9 @@ contains
   ! returns the column size
   !===================================================================!
 
-  function get_col_size(this)
+  pure type(integer) function get_col_size(this)
 
-    class(matrix) :: this
-    type(integer) :: get_col_size
+    class(matrix), intent(in) :: this
     
     get_col_size = this % col_size
 
@@ -93,11 +92,10 @@ contains
   ! returns the row size
   !===================================================================!
 
-  function get_row_size(this)
+  pure type(integer) function get_row_size(this)
 
-    class(matrix) :: this
-    type(integer) :: get_row_size
-
+    class(matrix), intent(in) :: this
+    
     get_row_size = this % row_size
 
   end function get_row_size
@@ -106,10 +104,10 @@ contains
   ! sets the row size
   !===================================================================!
 
-  subroutine set_row_size(this, row)
+  pure subroutine set_row_size(this, row)
 
-    class(matrix) :: this
-    type(integer) :: row
+    class(matrix), intent(inout) :: this
+    type(integer), intent(in) :: row
 
     this % row_size = row
     
@@ -119,10 +117,10 @@ contains
   ! sets the column size
   !===================================================================!
   
-  subroutine set_col_size(this, col)
+  pure subroutine set_col_size(this, col)
     
-    class(matrix) :: this
-    type(integer) :: col
+    class(matrix), intent(inout) :: this
+    type(integer), intent(in) :: col
 
     this % col_size = col
 
