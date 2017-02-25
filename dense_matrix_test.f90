@@ -10,44 +10,56 @@ module dense_matrix_test
   
 contains
 
-  subroutine test_dense_matrix(nrows, ncols)
+  subroutine test_dense_matrix_create(nrows, ncols)
 
     type(integer)      :: nrows
     type(integer)      :: ncols
     type(dense_matrix) :: A
     type(scalar)       :: val
 
-!    print *, epsilon(1.0_WP)
-!    print *, LARGE
-!    print *, TINY
+    ! Test the first constructor 
+    create_and_add : block
 
-    A = dense_matrix(nrows, ncols)
+      A = dense_matrix(nrows, ncols)
 
-    if (nrows .ne. A % get_row_size()) then
-       print *, "Number of row mismatch"
-    end if
-    
-    if (ncols .ne. A % get_col_size()) then
-       print *, "Number of col mismatch"
-    end if
+      if (nrows .ne. A % get_row_size()) then
+         print *, "Number of row mismatch"
+      end if
 
-    do i = 1, nrows
-       do j = 1, ncols
+      if (ncols .ne. A % get_col_size()) then
+         print *, "Number of col mismatch"
+      end if
 
-          ! Generate a random number
-          call random_number(val)
+      do i = 1, nrows
+         do j = 1, ncols
 
-          ! Insert the matrix entries into the block
-          call A % add_entry(i, j, val)
+            ! Generate a random number
+            call random_number(val)
 
-          ! Get the matrix entries from the block
-          if (val - A % get_entry(i,j) .gt. epsilon(1.0_WP) ) then
-             print *, "DENSE MATRIX error", i, j, val, A % get_entry(i,j)
-          end if
+            ! Insert the matrix entries into the block
+            call A % add_entry(i, j, val)
 
-       end do
-    end do
+            ! Get the matrix entries from the block
+            if (val - A % get_entry(i,j) .gt. epsilon(1.0_WP) ) then
+               print *, "DENSE MATRIX error", i, j, val, A % get_entry(i,j)
+            end if
 
-  end subroutine test_dense_matrix
+         end do
+      end do
+
+    end block create_and_add
+
+    ! Test for constructor 2
+    constructor2: block
+
+      type(scalar) :: B(nrows,ncols)
+
+      print *, "constructing dense matrix from existing matrix"
+      
+      A = dense_matrix(B)
+      
+    end block constructor2
+
+  end subroutine test_dense_matrix_create
 
 end module dense_matrix_test

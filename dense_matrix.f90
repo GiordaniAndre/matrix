@@ -1,5 +1,4 @@
 #include "scalar.fpp"
-
 !=====================================================================!
 ! Module that defines a matrix type that contains dense storage of
 ! entries
@@ -8,27 +7,29 @@
 !=====================================================================!
 
 module dense_matrix_interface
-
-  !use constants, only : WP
-  use, intrinsic :: iso_fortran_env, only : WP => REAL64
+  
+  use iso_fortran_env, only : WP => REAL64
   use matrix_interface, only: matrix
 
   implicit none
 
   private
 
-  public :: dense_matrix
+  public :: dense_matrix, destroy
   
   ! Specialized matrix type for dense storage
   type, extends(matrix) :: dense_matrix
-
-     type(scalar), allocatable :: vals(:,:)
-
+     
+     type(scalar), allocatable, dimension(:,:) :: vals
+     
    contains
 
+     ! Type-Bound Procedures
      procedure :: add_entry
      procedure :: get_entry
-     procedure :: destroy
+
+     ! Destructor
+     final :: destroy
      
   end type dense_matrix
   
@@ -37,9 +38,10 @@ module dense_matrix_interface
      procedure construct_empty_matrix
      procedure construct_from_matrix
   end interface dense_matrix
-
+   
 contains
-  
+
+    
   !===================================================================!
   ! Initializes an instance of dense matrix
   !===================================================================!
@@ -49,13 +51,13 @@ contains
     integer            :: col_size
     integer            :: row_size
     type(dense_matrix) :: this
-    
+
     ! Set matrix dimensions
     call this % set_row_size(row_size)
     call this % set_col_size(col_size) 
 
     ! Allocate space
-    allocate(this % vals(this % get_row_size(), this% get_col_size()))
+    allocate(this % vals(this % get_row_size(), this % get_col_size()))
 
     ! Zero the entries
     this % vals = 0.0_WP
@@ -69,35 +71,48 @@ contains
   pure type(dense_matrix) function construct_from_matrix(mat) result(this)
 
     type(scalar), intent(in) :: mat(:,:)
-    type(integer) :: mat_shape(2)
 
-    ! Determine the input matrix dimensions [row, col]
-    mat_shape = shape(mat)
+!!$    ! Bounds and values are copied
+!!$    allocate(this % vals, source = mat) ! mold = mat copies just the bounds
+!!$
+!!$    ! Set matrix dimensions before return
+!!$    call this % set_row_size( this % get_row_size() )
+!!$    call this % set_col_size( this % get_col_size() )
 
-    ! Set matrix dimensions
-    call this % set_row_size(mat_shape(1))
-    call this % set_col_size(mat_shape(2)) 
+    find_size: block
 
+      type(integer) :: mat_shape(2)
+
+      mat_shape = shape(mat)
+
+      ! Set matrix dimensions before return
+      call this % set_row_size( mat_shape(1) )
+      call this % set_col_size( mat_shape(2) )
+      
+    end block find_size
+        
     ! Allocate space
-    allocate(this % vals(this % get_row_size(), this% get_col_size()))
-    
+    allocate(this % vals(this % get_row_size(), this % get_col_size()))
+
     ! Zero the entries
     this % vals = mat
-    
+
   end function construct_from_matrix
 
   !=================================================================!
   ! Destructor for the matrix
   !=================================================================!
 
-  pure subroutine destroy(this)
+  subroutine destroy(this)
 
-    class(dense_matrix), intent(inout) :: this
+    type(dense_matrix), intent(inout) :: this
 
     ! Free up allocated memory in heap
     if (allocated(this % vals)) then
        deallocate(this % vals)
     end if
+
+    print *, "Destructing dense matrix!"
 
   end subroutine destroy
   
@@ -129,5 +144,5 @@ contains
     val = this % vals(row, col)
     
   end function get_entry
-
+  
 end module dense_matrix_interface
