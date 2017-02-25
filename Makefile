@@ -51,7 +51,10 @@ LIBS = -lm -llapack
 #---------------------------------------------------------------------#
 # Define all the source files to compile here
 #---------------------------------------------------------------------#
-SRC  :=	matrix.f90 dense_matrix.f90 dense_matrix_test.f90 main.f90
+SRC  :=	matrix.f90 \
+	dense_matrix.f90 dense_matrix_test.f90 \
+	sparse_matrix.f90 \
+	main.f90
 
 #-----------------------------------------------------------------------
 # define the C,C++, Fortran object files 

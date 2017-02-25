@@ -15,7 +15,7 @@ module dense_matrix_interface
 
   private
 
-  public :: dense_matrix, destroy
+  public :: dense_matrix
   
   ! Specialized matrix type for dense storage
   type, extends(matrix) :: dense_matrix
@@ -46,19 +46,19 @@ contains
   ! Initializes an instance of dense matrix
   !===================================================================!
   
-  function construct_empty_matrix(row_size, col_size) result(this)
+  pure type(dense_matrix) function construct_empty_matrix(row_size, col_size) &
+       & result(this)
 
-    integer            :: col_size
-    integer            :: row_size
-    type(dense_matrix) :: this
+    type(integer), intent(in) :: col_size
+    type(integer), intent(in) :: row_size
 
     ! Set matrix dimensions
     call this % set_row_size(row_size)
     call this % set_col_size(col_size) 
-
+    
     ! Allocate space
     allocate(this % vals(this % get_row_size(), this % get_col_size()))
-
+    
     ! Zero the entries
     this % vals = 0.0_WP
     
