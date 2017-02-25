@@ -17,7 +17,7 @@ contains
     type(dense_matrix) :: A
     type(scalar)       :: val
 
-!    print *, PI
+!    print *, epsilon(1.0_WP)
 !    print *, LARGE
 !    print *, TINY
 
@@ -41,7 +41,7 @@ contains
           call A % add_entry(i, j, val)
 
           ! Get the matrix entries from the block
-          if (val - A % get_entry(i,j) .gt. eps ) then
+          if (val - A % get_entry(i,j) .gt. epsilon(1.0_WP) ) then
              print *, "DENSE MATRIX error", i, j, val, A % get_entry(i,j)
           end if
 
