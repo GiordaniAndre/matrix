@@ -54,6 +54,7 @@ LIBS = -lm -llapack
 SRC  :=	matrix.f90 \
 	dense_matrix.f90 dense_matrix_test.f90 \
 	sparse_matrix.f90 \
+	sparse_dok_matrix.f90 \
 	main.f90
 
 #-----------------------------------------------------------------------
